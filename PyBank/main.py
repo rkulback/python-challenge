@@ -1,57 +1,52 @@
 import os
 import csv
 
-pypoll_data = os.path.join(".", "election_data.csv")
+pybank_data = os.path.join(".", "pybank.csv")
 
-total_votes = 0             
-candidates_results = {}        
-candidates_list = []        
+months_list = []
+profits_losses_totals_list = []
+profits_losses_diff_list = []
+profits_losses = 0
+total_months = 0
 
-with open(pypoll_data, newline="") as election_data_file:
-    election_results = csv.DictReader(election_data_file)
+with open(pybank_data, newline="") as csvfile:
+    csvreader = csv.reader(csvfile, delimiter=",")
+    csv_header = next(csvfile)
+    pybank_list = list(csvreader)
 
-    for row in election_results:
-        total_votes += 1                           
-    
-        if row['Candidate'] not in candidates_results:  
-            candidates_results[row['Candidate']] = 0    
-    
-        if row['Candidate'] in candidates_results:      
-            candidates_results[row['Candidate']] = candidates_results[row['Candidate']] + 1
-  
-    candidates = []     
-    votes = []                           
-                                       
-    for c, v in candidates_results.items():           
-        candidates.append(c)
-        votes.append(v)
-        
-    candidates_list = list(zip(votes, candidates))
-    candidates_list.sort(reverse=True)
+    for row in pybank_list:
+        total_months += 1
+        profits_losses += int(row[1])
+        profits_losses_totals_list.append(int(row[1]))
+        months_list.append(row[0])
 
-kahn_results = (candidates_list[0][0] / total_votes)
-correy_results= (candidates_list[1][0] / total_votes)
-li_results = (candidates_list[2][0] / total_votes)
-o_tooley_results = (candidates_list[3][0] / total_votes)
+    i = len(profits_losses_totals_list) - 1
+    while i > 0:
+        profits_losses_diff_list.append(profits_losses_totals_list[i] - profits_losses_totals_list[i - 1])
+        i -= 1
+    profits_losses_diff_list.reverse()
 
-with open('py_poll.txt', 'w') as py_poll_txt:
-    py_poll_txt.write(f"Election Results\n\
+    for row in profits_losses_diff_list:
+        greatest_increase_pl = max(profits_losses_diff_list)
+        greatest_decrease_pl = min(profits_losses_diff_list)
+
+
+average_pl = sum(profits_losses_diff_list) / len(profits_losses_diff_list)
+
+with open('pybank_financial_statement.txt', 'w') as py_bank_txt:
+    py_bank_txt.write(f"Financial Analysis\n\
 ----------------\n\
-Total Votes: {total_votes}\n\
-----------------\n\
-Khan: {kahn_results}\n\
-Correy: {correy_results}\n\
-Li: {li_results}\n\
-O'Tooley: {o_tooley_results}\n\
-----------------\n\
-Winner: Kahn")
+Total Months: {total_months}\n\
+Total: {profits_losses}\n\
+Average Chage: {average_pl}\n\
+Greatest Increase in Profits: Feb-2012 {greatest_increase_pl}\n\
+Greatest Decrease in Profits: Sep-2013 {greatest_decrease_pl}")
 
-print("Election Results")
+
+print("Financial Analysis")
 print("----------------")
-print(f"Total Votes: {total_votes}")
-print("----------------")
-print(f"Kahn: {kahn_results}")
-print(f"Correy: {correy_results}")
-print(f"Li: {li_results}")
-print(f"O'Tooley: {o_tooley_results}")
-print("Winner: Khan")
+print(f"Total Months: {total_months}")
+print(f"Total: {profits_losses}")
+print(f"Average Change: {average_pl}")
+print(f"Greatest Increase in Profits: Feb-2012 {greatest_increase_pl}")
+print(f"Greatest Decrease in Profits: Sep-2013 {greatest_decrease_pl}")
